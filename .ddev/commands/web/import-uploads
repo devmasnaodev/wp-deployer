@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+
+ARCHIVE="/var/www/html/init/data/uploads.tar.gz"
+UPLOADS_DIR="/var/www/html/web/wp-content/uploads"
+
+if [ ! -f "$ARCHIVE" ]; then
+  echo "Uploads archive not found at $ARCHIVE. Skipping."
+  exit 0
+fi
+
+if ! command -v tar >/dev/null 2>&1; then
+  echo "tar not available. Skipping uploads import."
+  exit 0
+fi
+
+mkdir -p "$UPLOADS_DIR"
+
+if find "$UPLOADS_DIR" -mindepth 1 -maxdepth 1 ! -name '.gitkeep' | read -r _; then
+  echo "Uploads directory is not empty. Aborting import."
+  exit 0
+fi
+
+echo "Importing uploads from $ARCHIVE..."
+tar -xzf "$ARCHIVE" -C /var/www/html
+echo "Uploads import completed."

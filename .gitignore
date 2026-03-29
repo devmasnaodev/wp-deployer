@@ -1,0 +1,43 @@
+# Application
+web/wp-content/plugins/*
+!web/wp-content/plugins/.gitkeep
+web/wp-content/mu-plugins/*/
+web/wp-content/themes/twentytwentyfive/
+web/wp-content/upgrade
+web/wp-content/uploads/*
+!web/wp-content/uploads/.gitkeep
+web/wp-content/cache/*
+
+# Whitelisted Plugins
+#!web/wp-content/plugins/advanced-custom-fields-pro/
+#!web/wp-content/plugins/elementor-pro/
+
+# WordPress
+web/wp-admin/
+web/wp-includes/
+
+# Ignore WordPress core files
+web/wp-*.php
+!web/wp-config.php
+web/xmlrpc.php
+web/license.txt
+web/readme.html
+web/index.php
+
+# Initial data
+init/data/*.tar*
+
+# Logs
+*.log
+
+# Dotenv
+.env
+.env.*
+!.env.example
+
+# Composer
+/vendor
+auth.json
+
+# WP-CLI
+wp-cli.local.yml

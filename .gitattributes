@@ -1,0 +1,27 @@
+# Exclude dev-only directories from deployment archives
+.ddev/ export-ignore
+.github/ export-ignore
+.vscode/ export-ignore
+
+# Dev tooling
+.cz.toml export-ignore
+phpcs.xml export-ignore
+pint.json export-ignore
+
+# Git and env files
+.gitignore export-ignore
+.gitattributes export-ignore
+.env.example export-ignore
+.tag.versions export-ignore
+
+# Project-specific setup files
+init/ export-ignore
+deploy.php export-ignore
+web/wp-config.php export-ignore
+
+# Docs and license
+LICENSE.md export-ignore
+README.md export-ignore
+
+# Normalize line endings
+* text=auto eol=lf

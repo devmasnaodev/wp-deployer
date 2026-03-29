@@ -1,0 +1,78 @@
+#!/bin/bash
+set -euo pipefail
+
+PROJECT_ROOT="/var/www/html"
+WEB_PATH="${PROJECT_ROOT}/web"
+ENV_FILE="${PROJECT_ROOT}/.env"
+
+if ! command -v wp >/dev/null 2>&1; then
+  echo "wp CLI not available. Skipping WordPress install."
+  exit 0
+fi
+
+if [ ! -f "${WEB_PATH}/wp-settings.php" ]; then
+  echo "WordPress core files not found in ${WEB_PATH}. Skipping install."
+  exit 0
+fi
+
+if wp core is-installed --path="${WEB_PATH}" >/dev/null 2>&1; then
+  echo "WordPress already installed. Skipping install."
+  exit 0
+fi
+
+if [ -f "$ENV_FILE" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  . "$ENV_FILE"
+  set +a
+else
+  echo ".env not found at ${ENV_FILE}. Using defaults for WP install."
+fi
+
+WP_URL="${WP_URL:-${DDEV_PRIMARY_URL:-http://localhost}}"
+WP_TITLE="${WP_TITLE:-WP Deployer}"
+WP_ADMIN_USER="${WP_ADMIN_USER:-admin}"
+WP_ADMIN_EMAIL="${WP_ADMIN_EMAIL:-admin@example.com}"
+WP_LOCALE="${WP_LOCALE:-}"
+WP_TIMEZONE="${WP_TIMEZONE:-}"
+WP_DB_PREFIX="${WP_DB_PREFIX:-wp_}"
+
+if [ -z "${WP_ADMIN_PASSWORD:-}" ]; then
+  echo "WP_ADMIN_PASSWORD is not set. Skipping WordPress install."
+  exit 0
+fi
+
+if [ -n "$WP_DB_PREFIX" ]; then
+  echo "Setting WordPress table prefix to '${WP_DB_PREFIX}'..."
+  wp config set table_prefix "$WP_DB_PREFIX" \
+    --type=variable \
+    --path="${WEB_PATH}" >/dev/null
+fi
+
+echo "Installing WordPress with wp CLI..."
+wp core install \
+  --path="${WEB_PATH}" \
+  --url="${WP_URL}" \
+  --title="${WP_TITLE}" \
+  --admin_user="${WP_ADMIN_USER}" \
+  --admin_password="${WP_ADMIN_PASSWORD}" \
+  --admin_email="${WP_ADMIN_EMAIL}" \
+  --skip-email
+
+if [ -n "$WP_TIMEZONE" ]; then
+  echo "Setting WordPress timezone to '${WP_TIMEZONE}'..."
+  wp option update timezone_string "$WP_TIMEZONE" --path="${WEB_PATH}" >/dev/null
+  # Keep timezone_string as source of truth when configured.
+  wp option delete gmt_offset --path="${WEB_PATH}" >/dev/null 2>&1 || true
+fi
+
+if [ -n "$WP_LOCALE" ] && [ "$WP_LOCALE" != "en_US" ]; then
+  echo "Activating WordPress locale '${WP_LOCALE}'..."
+  if ! wp language core activate "$WP_LOCALE" --path="${WEB_PATH}" >/dev/null 2>&1; then
+    echo "Locale '${WP_LOCALE}' not available yet. Installing language pack..."
+    wp language core install "$WP_LOCALE" --path="${WEB_PATH}" >/dev/null 2>&1 || true
+    wp language core activate "$WP_LOCALE" --path="${WEB_PATH}" >/dev/null 2>&1 || true
+  fi
+fi
+
+echo "WordPress install completed."

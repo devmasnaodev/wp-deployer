@@ -1,0 +1,54 @@
+name: Deploy to Staging
+
+on:
+  # push:
+  #   branches:
+  #     - develop
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Staging
+    runs-on: [self-hosted, deployer, staging]
+
+    env:
+      STAGING_IP: ${{ secrets.STAGING_IP }}
+      STAGING_PORT: ${{ secrets.STAGING_PORT }}
+      STAGING_DOMAIN: ${{ secrets.STAGING_DOMAIN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install project dependencies
+        run: |
+          composer install --prefer-dist --no-dev --no-scripts --ignore-platform-reqs
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H -p $STAGING_PORT $STAGING_IP >> ~/.ssh/known_hosts
+          ssh-keyscan -H -p 22 10.0.0.1 >> ~/.ssh/known_hosts
+
+      - name: Deploy with Deployer
+        run: |
+          dep --file=deploy.php deploy staging
+
+  notify:
+    name: Notification
+    runs-on: [self-hosted, deployer, staging]
+
+    env:
+      DOMAIN: ${{ secrets.STAGING_DOMAIN }}
+
+    needs: deploy
+    if: always()
+
+    steps:
+    - name: Deploy status
+      run: |
+        if [ "${{ needs.deploy.result }}" == "success" ]; then
+          echo "✅ Staging deployment successful: https://$DOMAIN"
+        else
+          echo "❌ Staging deployment failed"
+        fi

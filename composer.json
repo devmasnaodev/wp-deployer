@@ -1,0 +1,71 @@
+{
+    "name": "devmasnaodev/wp-deployer",
+    "type": "project",
+    "license": "MIT",
+    "description": "WordPress project boilerplate with Composer",
+    "version": "0.1.0",
+    "authors": [
+        {
+            "name": "Rodrigo Gomes",
+            "email": "rodrigo.dev.ux@outlook.com"
+        }
+    ],
+    "repositories": [
+        {
+            "name": "wpackagist",
+            "type": "composer",
+            "url": "https://wpackagist.org",
+            "only": [
+                "wpackagist-plugin/*",
+                "wpackagist-theme/*"
+            ]
+        }
+    ],
+    "require": {
+        "php": ">=8.3",
+        "roots/wordpress-no-content": "^6.0",
+        "roots/wordpress-core-installer": "^v4.0",
+        "inpsyde/wp-translation-downloader": "^2.5",
+        "vlucas/phpdotenv": "^5.5",
+        "wpackagist-theme/twentytwentyfive": "^1.0",
+        "oscarotero/env": "^2.1"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "allow-plugins": {
+            "roots/wordpress-core-installer": true,
+            "inpsyde/wp-translation-downloader": true,
+            "composer/installers": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "post-install-cmd": "php scripts/install-wp-core.php",
+        "post-update-cmd": "php scripts/install-wp-core.php"
+    },
+    "extra": {
+        "wordpress-install-dir": "wp",
+        "installer-paths": {
+            "web/wp-content/plugins/{$name}/": [
+                "type:wordpress-plugin"
+            ],
+            "web/wp-content/themes/{$name}/": [
+                "type:wordpress-theme"
+            ],
+            "web/wp-content/mu-plugins/{$name}/": [
+                "type:wordpress-muplugin"
+            ]
+        },
+        "wp-translation-downloader": {
+            "languages": [
+                "pt_BR"
+            ],
+            "languageRootDir": "web/wp-content/languages"
+        }
+    },
+    "require-dev": {
+        "deployer/deployer": "^7.5"
+    }
+}

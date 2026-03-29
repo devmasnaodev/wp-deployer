@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euo pipefail
+
+VENDOR_DIR="/var/www/html/vendor"
+COMPOSER_FILE="/var/www/html/composer.json"
+
+if [ ! -f "$COMPOSER_FILE" ]; then
+  echo "composer.json not found. Skipping composer install."
+  exit 0
+fi
+
+if [ -d "$VENDOR_DIR" ]; then
+  echo "Vendor directory already exists. Skipping composer install."
+  exit 0
+fi
+
+echo "Vendor directory missing. Running composer install..."
+composer install --no-interaction --prefer-dist --no-progress
