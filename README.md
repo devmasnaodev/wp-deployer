@@ -45,6 +45,22 @@ Comportamento:
 - Se existir `init/data/db.sql.gz`, o `import-seed` importa a base e a instalação via WP-CLI é ignorada.
 - Se não existir seed e o WordPress ainda não estiver instalado, o `install-wp-if-needed` executa `wp core install` usando variáveis do `.env`.
 
+### Criando um padrão de importação
+
+Você pode criar um padrão de importação do projeto adicionando os arquivos de banco e uploads em `init/data`.
+
+Para exportar a base de dados, utilize:
+
+```sh
+ddev export-db --file=init/data/db.sql.gz
+```
+
+Para exportar os arquivos de uploads, utilize:
+
+```sh
+tar -cvzf init/data/uploads.tar.gz web/wp-content/uploads
+```
+
 Variáveis esperadas no `.env`:
 - `WP_URL`
 - `WP_TITLE`
