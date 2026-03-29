@@ -35,7 +35,7 @@ WP_ADMIN_USER="${WP_ADMIN_USER:-admin}"
 WP_ADMIN_EMAIL="${WP_ADMIN_EMAIL:-admin@example.com}"
 WP_LOCALE="${WP_LOCALE:-}"
 WP_TIMEZONE="${WP_TIMEZONE:-}"
-WP_DB_PREFIX="${WP_DB_PREFIX:-wp_}"
+WP_DB_PREFIX="${WP_DB_PREFIX:-}"
 
 if [ -z "${WP_ADMIN_PASSWORD:-}" ]; then
   echo "WP_ADMIN_PASSWORD is not set. Skipping WordPress install."
