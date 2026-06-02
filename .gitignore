@@ -42,6 +42,8 @@ init/data/*.sql*
 # Composer
 /vendor
 auth.json
+composer.lock
+wp-translation-downloader.lock
 
 # WP-CLI
 wp-cli.local.yml
