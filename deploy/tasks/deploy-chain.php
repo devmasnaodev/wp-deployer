@@ -159,6 +159,7 @@ after('deploy:symlink', 'wordpress:update-db');
 after('wordpress:update-db', 'wordpress:cache');
 after('wordpress:cache', 'services:restart');
 after('services:restart', 'services:clean');
+after('services:clean', 'wp:config:lock');
 after('deploy:failed', 'deploy:unlock');
 
 after('rollback', function () {
