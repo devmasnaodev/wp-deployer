@@ -3,7 +3,7 @@
     "type": "project",
     "license": "MIT",
     "description": "WordPress project boilerplate with Composer",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "authors": [
         {
             "name": "Rodrigo Gomes",

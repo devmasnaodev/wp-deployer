@@ -1,3 +1,10 @@
+## v0.3.1 (2026-06-03)
+
+### Fix
+
+- aguardar deploy-target disponível após reinicio do container
+- add environment declaration to workflow jobs
+
 ## v0.3.0 (2026-06-02)
 
 ### Feat
