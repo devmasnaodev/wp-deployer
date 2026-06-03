@@ -21,10 +21,25 @@ if wp core is-installed --path="${WEB_PATH}" >/dev/null 2>&1; then
 fi
 
 if [ -f "$ENV_FILE" ]; then
+  set +u  # .env may contain double-quoted values with $VAR references not defined here
   set -a
   # shellcheck disable=SC1090
   . "$ENV_FILE"
   set +a
+  set -u
+
+  # Re-read WP_ADMIN_PASSWORD raw to preserve special characters (e.g. $) that
+  # bash source silently expands when the value is double-quoted in .env.
+  _raw_line=$(grep -E '^WP_ADMIN_PASSWORD=' "$ENV_FILE" | tail -1)
+  if [ -n "$_raw_line" ]; then
+    _raw="${_raw_line#WP_ADMIN_PASSWORD=}"
+    case "$_raw" in
+      '"'*'"') _raw="${_raw:1:${#_raw}-2}" ;;
+      "'"*"'") _raw="${_raw:1:${#_raw}-2}" ;;
+    esac
+    WP_ADMIN_PASSWORD="$_raw"
+  fi
+  unset _raw_line _raw
 else
   echo ".env not found at ${ENV_FILE}. Using defaults for WP install."
 fi

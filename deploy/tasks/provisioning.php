@@ -129,15 +129,20 @@ task('ee:configure-deploy-target', function () {
 
     $checkCmd = 'grep -qF ' . escapeshellarg($siteAppDir) . " {$compose} && echo EXISTS || echo MISSING";
     if (str_contains(trim(run_on_management_host($checkCmd)), 'EXISTS')) {
-        writeln("⏭️  Volume já existe no docker-compose.yml, pulando...");
-        return;
+        writeln("⏭️  Volume já existe no docker-compose.yml, apenas reiniciando...");
+        writeln(run_on_management_host("sudo docker-compose -f {$compose} up -d") ?: 'Container reiniciado.');
+    } else {
+        $awkCmd    = "awk '/## Volume do site EasyEngine/{print; print \"{$volumeLine}\"; next}1' {$compose}";
+        $updateCmd = "{$awkCmd} | sudo tee {$compose} > /dev/null"
+                   . " && sudo docker-compose -f {$compose} up -d";
+
+        writeln(run_on_management_host($updateCmd) ?: 'Container reiniciado.');
     }
 
-    $awkCmd    = "awk '/## Volume do site EasyEngine/{print; print \"{$volumeLine}\"; next}1' {$compose}";
-    $updateCmd = "{$awkCmd} | sudo tee {$compose} > /dev/null"
-               . " && sudo docker-compose -f {$compose} up -d";
+    $sshPort = currentHost()->getPort();
+    writeln("⏳ Aguardando deploy-target disponível na porta {$sshPort}...");
+    run_on_management_host("timeout 60 bash -c 'until nc -z 127.0.0.1 {$sshPort} 2>/dev/null; do sleep 1; done'");
 
-    writeln(run_on_management_host($updateCmd) ?: 'Container reiniciado.');
     writeln("✅ Volume adicionado e deploy-target reiniciado para: {$domain}");
 })->desc('Adiciona volume do site ao deploy-target e reinicia o container');
 
@@ -187,4 +192,7 @@ task('ee:provision', function () {
 
     invoke('init:generate-data');
     invoke('init:data:import');
+    invoke('setup:scripts');
+    invoke('db:replace-urls');
+    invoke('services:clean');
 })->desc('Provisiona site EasyEngine: criação, primeiro deploy, shared wp-config e importação de dados');
