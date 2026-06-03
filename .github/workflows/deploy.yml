@@ -10,6 +10,7 @@ jobs:
   deploy:
     name: Deploy to Production
     runs-on: [self-hosted, deployer, production]
+    environment: production
 
     env:
       PROD_IP: ${{ secrets.PROD_IP }}
@@ -39,7 +40,8 @@ jobs:
   notify:
     name: Notification
     runs-on: [self-hosted, deployer, production]
-    
+    environment: production
+
     env:
       DOMAIN: ${{ vars.PROD_DOMAIN }}
 
